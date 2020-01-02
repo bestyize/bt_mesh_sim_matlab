@@ -1,18 +1,28 @@
-% matrix=TopoHelper.createTopologyMatrix(200,100,100);
-% plot(matrix([1],:),matrix([2],:),"r.")
-myMap=TopoHelper.loadTopology();
-r=10;
-[~,nodeCount]=size(myMap);
-for i=1:nodeCount
-    x=myMap([1],i)
-    y=myMap([2],i)
-    plot(x,y,"r.")
-    text(x,y,num2str(i))
-    if i==18||i==157
-         rectangle('Position',[x-r,y-r,2*r,2*r],'Curvature',[1,1],'EdgeColor','b')
-     end
-    hold on;
-end
+global DEFAULT_RANGE;
+DEFAULT_RANGE=10;
+matrix_100_nodes=TopoHelper.createTopologyMatrix(100,100,100);
+
+
+
+
+
+
+
+
+% % plot(matrix([1],:),matrix([2],:),"r.")
+% myMap=TopoHelper.loadTopology();
+% r=10;
+% [~,nodeCount]=size(myMap);
+% for i=1:nodeCount
+%     x=myMap([1],i)
+%     y=myMap([2],i)
+%     plot(x,y,"r.")
+%     text(x,y,num2str(i))
+%     if i==18||i==157
+%          rectangle('Position',[x-r,y-r,2*r,2*r],'Curvature',[1,1],'EdgeColor','b')
+%      end
+%     hold on;
+% end
 
 
 

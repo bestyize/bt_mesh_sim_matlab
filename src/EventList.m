@@ -43,6 +43,29 @@ classdef EventList < handle
             end
         end
         
+        %从同时发生的事件列表中添加事件,节省时间，而不是一个个添加，这是MATLAB矩阵运算的特点，时间效率可以减少到一个个添加的情况下的至少newEventList长度分之一%
+        %本质上和节点度相关，节点度越高，newEventList越大，矩阵添加的效果越明显%
+        function obj=addEventFromListOfSameTime(obj,newEventList)
+            [~,newEventListSize]=size(newEventList);
+            if(newEventListSize==0)
+                return;
+            end
+            [~,eventListSize]=size(obj.theList);
+            event=newEventList(1);
+            if eventListSize==0
+                obj.theList=[newEventList];
+                return;
+            end
+            eventTime=event.startTime;
+            eventListTimeList=[obj.theList.startTime];
+            
+            insertIndex=find(eventListTimeList>=eventTime,1,'first');
+            eventListPartSmall=obj.theList(1,1:(insertIndex-1));
+            eventListPartBig=obj.theList(1,insertIndex:eventListSize);
+            obj.theList=[eventListPartSmall newEventList eventListPartBig];
+        end
+
+        
         %获取第二个事件的时间%
         function [result]=getFirstEventStartTime(obj)
             result=obj.theList(2).startTime;
@@ -51,7 +74,8 @@ classdef EventList < handle
         %处理第二个事件,第一个事件是常驻事件，为了初始化而加上的%
         function eventList=processFirstEvent(obj)
             newEventList=obj.theList(2).eventHandler();
-            obj.theList(2)=[];
+            obj.theList(2)=[];%这一句代码非常耗时，占了整个程序运行的47.6% %
+            %obj.theList=[obj.theList(1) obj.theList(3:size(obj.theList,2))];
             eventList=newEventList;
         end
         

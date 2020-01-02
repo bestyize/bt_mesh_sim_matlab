@@ -11,11 +11,11 @@ global DEFAULT_RELAY_PROBABILITY;
 
 DEFAULT_TTL=127;
 DEFAULT_TTL_BACKOFF=0;
-DEFAULT_RANGE=10;
+DEFAULT_RANGE=15;
 DEFAULT_PACKET_SIZE=31;
 DEFAULT_CACHE_SIZE=1000;
 DEFAULT_RRD=20;
-DEFAULT_RELAY_PROBABILITY=0.7;
+DEFAULT_RELAY_PROBABILITY=1.0;
 
 
 %全局变量区%
@@ -32,12 +32,13 @@ nodeMap=TopoHelper.loadTopology();
 initPosition=Position(nodeMap([1],[1]),nodeMap([2],[1]));
 initNode=Node(1,initPosition);
 LIST_OF_NODES=[initNode];
-MAX_SIM_TIME=12000;
+MAX_SIM_TIME=60000;
 tic
 msg="系统仿真开始"
 %系统启动%
 systemStart();
-msg="仿真完成！模拟时间："+SYSTEM_CLOCK+"程序运行时间："+toc+"s"
+printAvgNodeDegree()
+msg="仿真完成！模拟时间："+SYSTEM_CLOCK/1000+"s 程序运行时间："+toc+"s"
 
 function systemStart()
     global SYSTEM_CLOCK;
@@ -45,9 +46,9 @@ function systemStart()
     global LIST_OF_NODES;
     global MAX_SIM_TIME;%最大仿真时间%
     
-    srcId=24;
-    dstId=152;
-    packetNum=100;
+    srcId=41;
+    dstId=35;
+    packetNum=200;
     packetRate=20;
 
     %读取节点拓扑%
@@ -60,7 +61,8 @@ function systemStart()
     [~,eventListSize]=size(eventList.theList);
     while SYSTEM_CLOCK<MAX_SIM_TIME&&(eventListSize)>1
         SYSTEM_CLOCK=eventList.getFirstEventStartTime();
-        eventList=eventList.addEventFromList(eventList.processFirstEvent());
+        %eventList=eventList.addEventFromList(eventList.processFirstEvent());
+        eventList=eventList.addEventFromListOfSameTime(eventList.processFirstEvent());
         [~,eventListSize]=size(eventList.theList);
     end
     
@@ -72,7 +74,7 @@ function buildNodeList()
     global LIST_OF_NODES;
     nodeMap=TopoHelper.loadTopology();
     [~,nodeCount]=size(nodeMap);
-    for i=2:1:nodeCount %遍历二维数组每一列%
+    for i=2:1:nodeCount %遍历二维数组每一列%   
         position=Position(nodeMap([1],[i]),nodeMap([2],[i]));
         LIST_OF_NODES(numel(LIST_OF_NODES)+1)=Node(i,position);
     end
@@ -109,6 +111,20 @@ function [event]=packetSendEventRegister(srcId,dstId,seq,time)
 %      LIST_OF_NODES(srcId).queue.add(packet);
 end
 
+
+function printAvgNodeDegree()
+    count=0;
+    global LIST_OF_NODES;
+    for i=1:numel(LIST_OF_NODES)
+        for j=1:numel(LIST_OF_NODES)
+            if((i~=j)&&(Helper.checkIsNeighbor(LIST_OF_NODES(i).position,LIST_OF_NODES(j).position)))
+                count=count+1;
+            end
+        end
+    end
+    "平均节点度："+(count/numel(LIST_OF_NODES))
+    
+end
 
 
 
