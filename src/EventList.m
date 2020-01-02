@@ -37,7 +37,7 @@ classdef EventList < handle
         
         %从事件列表添加新的事件%
         function obj=addEventFromList(obj,newEventList)
-            [newEventListSize,~]=size(newEventList');
+            [~,newEventListSize]=size(newEventList);
             for index=1:1:newEventListSize
                 obj=addEvent(obj,newEventList(index));
             end

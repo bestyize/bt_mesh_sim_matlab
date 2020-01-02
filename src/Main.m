@@ -1,3 +1,4 @@
+clear
 clc
 %默认配置区%
 global DEFAULT_TTL;
@@ -14,7 +15,7 @@ DEFAULT_RANGE=10;
 DEFAULT_PACKET_SIZE=31;
 DEFAULT_CACHE_SIZE=1000;
 DEFAULT_RRD=20;
-DEFAULT_RELAY_PROBABILITY=1;
+DEFAULT_RELAY_PROBABILITY=0.7;
 
 
 %全局变量区%
@@ -31,12 +32,12 @@ nodeMap=TopoHelper.loadTopology();
 initPosition=Position(nodeMap([1],[1]),nodeMap([2],[1]));
 initNode=Node(1,initPosition);
 LIST_OF_NODES=[initNode];
-MAX_SIM_TIME=10000;
-
+MAX_SIM_TIME=12000;
+tic
 msg="系统仿真开始"
 %系统启动%
 systemStart();
-msg="仿真完成！"
+msg="仿真完成！模拟时间："+SYSTEM_CLOCK+"程序运行时间："+toc+"s"
 
 function systemStart()
     global SYSTEM_CLOCK;
@@ -46,24 +47,24 @@ function systemStart()
     
     srcId=24;
     dstId=152;
-    packetNum=1;
-    packetRate=10;
-    drawSrcAndDst(srcId,dstId);
-    
-    
+    packetNum=100;
+    packetRate=20;
+
     %读取节点拓扑%
     buildNodeList();
     
     
-    %从节点18，发送1个包给节点142，发包速率是10p/s%
+    %从节点srcId，发送packetNum个包给节点dstId，发包速率是每秒packetRate个包%
     eventList=eventList.addEventFromList(packetSendEventHelper(srcId,dstId,packetNum,packetRate));
-    %eventList.printEventList();
+    %eventList.printEventList();%打印当前事件列表%
     [~,eventListSize]=size(eventList.theList);
     while SYSTEM_CLOCK<MAX_SIM_TIME&&(eventListSize)>1
         SYSTEM_CLOCK=eventList.getFirstEventStartTime();
         eventList=eventList.addEventFromList(eventList.processFirstEvent());
         [~,eventListSize]=size(eventList.theList);
     end
+    
+    DrawHelper.drawSrcAndDst(srcId,dstId);
     
 end
 
@@ -108,25 +109,7 @@ function [event]=packetSendEventRegister(srcId,dstId,seq,time)
 %      LIST_OF_NODES(srcId).queue.add(packet);
 end
 
-%绘制源节点和目标节点图%
-function drawSrcAndDst(srcId,dstId)
-    myMap=TopoHelper.loadTopology();
-    global DEFAULT_RANGE;
-    r=DEFAULT_RANGE;
-    [~,nodeCount]=size(myMap);
-    for i=1:nodeCount
-        x=myMap([1],i);
-        y=myMap([2],i);
-        plot(x,y,"r.")
-        text(x,y,num2str(i))
-        if i==srcId||i==dstId
-             rectangle('Position',[x-r,y-r,2*r,2*r],'Curvature',[1,1],'EdgeColor','b')
-         end
-        hold on;
-    end
-    title("源节点和目的节点示意")
-    
-end
+
 
 
 

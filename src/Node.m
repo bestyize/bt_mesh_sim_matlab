@@ -44,7 +44,10 @@ classdef Node < handle
                 if(Helper.checkIsNeighbor(LIST_OF_NODES(i).position,obj.position)&&(LIST_OF_NODES(i).id~=obj.id))
                     newEvent=Event(boardcastTime,"EVT_ADV_RECV",num2str(LIST_OF_NODES(i).id));
                     [~,queueIndex]=size(obj.queue);
-                    newEvent.setAdvRecvPayload(obj.queue(queueIndex));%从待发送队列里面取出第2个数据包%
+                    %newEvent.setAdvRecvPayload(obj.queue(queueIndex));%从待发送队列里面取出第2个数据包%
+                    advPacket=event.getAdvRecvPayload();
+                    advPacket.ttl=advPacket.ttl-1;
+                    newEvent.setAdvRecvPayload(advPacket);%从事件里面取出数据包%
                     [~,eventListSize]=size(eventList);
                     eventList(eventListSize+1)=newEvent;
                 end
@@ -101,9 +104,7 @@ classdef Node < handle
         function result=isNodeSource(obj,packet)
             result=(packet.srcId==obj.id);
         end
-        
-        
-        
+
         %发送完成后丢掉第一个数据包%
         function dropFirstPacketFromQueue(obj)
             obj.queue(2)=[];
