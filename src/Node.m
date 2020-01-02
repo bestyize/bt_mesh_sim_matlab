@@ -3,6 +3,7 @@ classdef Node < handle
         id ;
         position Position;
         range ;
+        neighborList;
         queue;%待发送队列%
         cache;%已接收队列%
         broadcastedCount=0;
@@ -19,7 +20,7 @@ classdef Node < handle
             obj.range=DEFAULT_RANGE;
             obj.cache=Cache(DEFAULT_CACHE_SIZE+1);
             initPacket=Packet(10000,10000,10000);
-            obj.queue=[initPacket];
+            obj.queue=initPacket;
         end
         %处理广播事件%
         function [eventList]=processAdvStartEvent(obj,event,eventList)
@@ -39,19 +40,33 @@ classdef Node < handle
             global SYSTEM_CLOCK;
             boardcastTime=Helper.getRandomRelayDelay()+SYSTEM_CLOCK;
             global LIST_OF_NODES;
-            [~,nodeCount]=size(LIST_OF_NODES);
-            for i=1:1:nodeCount
-                if(Helper.checkIsNeighbor(LIST_OF_NODES(i).position,obj.position)&&(LIST_OF_NODES(i).id~=obj.id))
-                    newEvent=Event(boardcastTime,"EVT_ADV_RECV",num2str(LIST_OF_NODES(i).id));
-                    [~,queueIndex]=size(obj.queue);
-                    %newEvent.setAdvRecvPayload(obj.queue(queueIndex));%从待发送队列里面取出第2个数据包%
-                    advPacket=event.getAdvRecvPayload();
-                    advPacket.ttl=advPacket.ttl-1;
-                    newEvent.setAdvRecvPayload(advPacket);%从事件里面取出数据包%
-                    [~,eventListSize]=size(eventList);
-                    eventList(eventListSize+1)=newEvent;
-                end
+            [~,neighborCount]=size(obj.neighborList);
+            for i=1:neighborCount
+                newEvent=Event(boardcastTime,"EVT_ADV_RECV",LIST_OF_NODES(obj.neighborList(1,i)).id);
+%               [~,queueIndex]=size(obj.queue);
+                %newEvent.setAdvRecvPayload(obj.queue(queueIndex));%从待发送队列里面取出第2个数据包%
+                advPacket=event.getAdvRecvPayload();
+                advPacket.ttl=advPacket.ttl-1;
+                newEvent.setAdvRecvPayload(advPacket);%从事件里面取出数据包%
+                [~,eventListSize]=size(eventList);
+                eventList(eventListSize+1)=newEvent;
             end
+            
+%             global LIST_OF_NODES;
+%             [~,nodeCount]=size(LIST_OF_NODES);
+%            objPosition=obj.position;
+%             for i=1:1:nodeCount
+%                 if(Helper.checkIsNeighbor(LIST_OF_NODES(1,i).position,objPosition)&&(LIST_OF_NODES(1,i).id~=obj.id))
+%                     newEvent=Event(boardcastTime,"EVT_ADV_RECV",LIST_OF_NODES(1,i).id);
+% %                     [~,queueIndex]=size(obj.queue);
+%                     %newEvent.setAdvRecvPayload(obj.queue(queueIndex));%从待发送队列里面取出第2个数据包%
+%                     advPacket=event.getAdvRecvPayload();
+%                     advPacket.ttl=advPacket.ttl-1;
+%                     newEvent.setAdvRecvPayload(advPacket);%从事件里面取出数据包%
+%                     [~,eventListSize]=size(eventList);
+%                     eventList(eventListSize+1)=newEvent;
+%                 end
+%             end
             dropFirstPacketFromQueue(obj);
         end
         
@@ -108,6 +123,20 @@ classdef Node < handle
         %发送完成后丢掉第一个数据包%
         function dropFirstPacketFromQueue(obj)
             obj.queue(2)=[];
+        end
+        
+        %节点初始化完毕后建立邻居节点列表%
+        function buildNeighborList(obj)
+            global LIST_OF_NODES;
+            [~,nodeCount]=size(LIST_OF_NODES);
+            count=1;
+            objPosition=obj.position;
+            for i=1:nodeCount
+                if(Helper.checkIsNeighbor(LIST_OF_NODES(i).position,objPosition)&&(LIST_OF_NODES(i).id~=obj.id))
+                    obj.neighborList(count)=LIST_OF_NODES(i).id;
+                    count=count+1;
+                end
+            end
         end
     end
     

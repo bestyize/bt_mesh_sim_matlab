@@ -11,7 +11,7 @@ classdef EventList < handle
         %构造方法%
         function obj = EventList(initEvent)
             %可以做点初始化操作%
-            obj.theList=[initEvent];
+            obj.theList=initEvent;
         end
         
         %向事件链表添加事件，从后往前一定%
@@ -53,7 +53,7 @@ classdef EventList < handle
             [~,eventListSize]=size(obj.theList);
             event=newEventList(1);
             if eventListSize==0
-                obj.theList=[newEventList];
+                obj.theList=newEventList;
                 return;
             end
             eventTime=event.startTime;
@@ -74,7 +74,7 @@ classdef EventList < handle
         %处理第二个事件,第一个事件是常驻事件，为了初始化而加上的%
         function eventList=processFirstEvent(obj)
             newEventList=obj.theList(2).eventHandler();
-            obj.theList(2)=[];%这一句代码非常耗时，占了整个程序运行的47.6% %
+            obj.theList(:,2)=[];%这一句代码非常耗时，占了整个程序运行的47.6% %
             %obj.theList=[obj.theList(1) obj.theList(3:size(obj.theList,2))];
             eventList=newEventList;
         end

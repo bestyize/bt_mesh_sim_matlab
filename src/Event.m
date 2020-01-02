@@ -5,7 +5,7 @@ classdef Event < handle
     properties
         startTime;
         type ;
-        metadata ;
+        metadata;
         advRecvPayload Packet;
     end
     
@@ -31,8 +31,8 @@ classdef Event < handle
         %事件处理函数%
         function eventLists=eventHandler(obj)
             global LIST_OF_NODES;
-            nodeId=str2double(obj.metadata);
-            newEvents=[obj];
+            nodeId=obj.metadata;
+            newEvents=obj;
             switch(obj.type)
                 case "EVT_ADV_START"
                     newEvents=LIST_OF_NODES(nodeId).processAdvStartEvent(obj,newEvents);
