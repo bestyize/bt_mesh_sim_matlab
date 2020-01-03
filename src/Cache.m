@@ -1,6 +1,6 @@
 classdef Cache <handle
-    %Cache ËùÓĞ½ÓÊÕµ½µÄ²»ÖØ¸´Êı¾İ°ü¶¼·ÅÔÚÕâÀï
-    %   ´Ë´¦ÏÔÊ¾ÏêÏ¸ËµÃ÷
+    %Cache æ‰€æœ‰æ¥æ”¶åˆ°çš„ä¸é‡å¤æ•°æ®åŒ…éƒ½æ”¾åœ¨è¿™é‡Œ
+    %   æ­¤å¤„æ˜¾ç¤ºè¯¦ç»†è¯´æ˜
     
     properties
         maxSize int32;
@@ -9,20 +9,20 @@ classdef Cache <handle
     
     methods
         
-        %¹¹Ôìº¯Êı£¬³õÊ¼»¯CacheµÄ´óĞ¡%
+        %æ„é€ å‡½æ•°ï¼Œåˆå§‹åŒ–Cacheçš„å¤§å°%
         function obj = Cache(maxSize)
             obj.maxSize=maxSize;
             obj.cachedPacketList=[CachedPacket("init_cache",-1)];
         end
         
-        %ÅĞ¶ÏÊÇ·ñ½ÓÊÜ¹ı´ËÊı¾İ°ü%
+        %åˆ¤æ–­æ˜¯å¦æ¥å—è¿‡æ­¤æ•°æ®åŒ…%
         function [result]=isPacketInCache(obj,packet)
             [~,cachedPacketListSize]=size(obj.cachedPacketList);
-            %¾Ş´óµÄ¾­Ñé½ÌÑµ£¬ÎÒÃÇĞèÒª´Ó»º´æÊı¾İ°üµÄ×îÉÏ·½È¡Êı¾İ£¬¶ø²»ÊÇÒ»¿ªÊ¼£¬%
-            %ÒòÎª»º´æµ½½ÚµãµÄÊı¾İ°ü»ù±¾ÉÏÊÇ°´ÕÕÊ±¼äË³ĞòÅÅµÄ£¬´ÓºóÏòÇ°»ù±¾ÉÏ¿ÉÒÔÊµÏÖÊ±¼ä¸´ÔÓ¶ÈÎªO(1)%
-            %¶ø´ÓÇ°ÏòºóÊµÏÖµÄÊ±¼ä¸´ÔÓ¶ÈÎªO(N),¶øÇÒ»ù±¾ÉÏ¾ÍÊÇN £¬¸ü¸ÄÖ®ºóÔÚ·¢ËÍ200¸ö°ü£¬Ã¿Ãë20¸öÊı¾İ°üµÄÇé¿öÏÂ%
-            %ÔËĞĞÊ±¼ä´Ó26.402s¼õÉÙµ½ÁË4.166s%
-            %³ıÁË´ÓºóÏÈÇ°±éÀúÍâ£¬ÎÒÃÇ»¹¿ÉÒÔ´ÓÏŞÖÆ»º´æ¿Õ¼ä³¤¶ÈÉÏ×ÅÊÖ£¬»º´æ³¤¶ÈÉèÖÃµÄÉÙÒ»Ğ©%
+            %å·¨å¤§çš„ç»éªŒæ•™è®­ï¼Œæˆ‘ä»¬éœ€è¦ä»ç¼“å­˜æ•°æ®åŒ…çš„æœ€ä¸Šæ–¹å–æ•°æ®ï¼Œè€Œä¸æ˜¯ä¸€å¼€å§‹ï¼Œ%
+            %å› ä¸ºç¼“å­˜åˆ°èŠ‚ç‚¹çš„æ•°æ®åŒ…åŸºæœ¬ä¸Šæ˜¯æŒ‰ç…§æ—¶é—´é¡ºåºæ’çš„ï¼Œä»åå‘å‰åŸºæœ¬ä¸Šå¯ä»¥å®ç°æ—¶é—´å¤æ‚åº¦ä¸ºO(1)%
+            %è€Œä»å‰å‘åå®ç°çš„æ—¶é—´å¤æ‚åº¦ä¸ºO(N),è€Œä¸”åŸºæœ¬ä¸Šå°±æ˜¯N ï¼Œæ›´æ”¹ä¹‹ååœ¨å‘é€200ä¸ªåŒ…ï¼Œæ¯ç§’20ä¸ªæ•°æ®åŒ…çš„æƒ…å†µä¸‹%
+            %è¿è¡Œæ—¶é—´ä»26.402så‡å°‘åˆ°äº†4.166s%
+            %é™¤äº†ä»åå…ˆå‰éå†å¤–ï¼Œæˆ‘ä»¬è¿˜å¯ä»¥ä»é™åˆ¶ç¼“å­˜ç©ºé—´é•¿åº¦ä¸Šç€æ‰‹ï¼Œç¼“å­˜é•¿åº¦è®¾ç½®çš„å°‘ä¸€äº›%
             for i=cachedPacketListSize:-1:1  
                 if(obj.cachedPacketList(i).packetId==packet.packetId)
                     result=1;
@@ -32,11 +32,14 @@ classdef Cache <handle
             result=0;
         end
         
-        %Ïò»º´æÖĞÌí¼ÓÊı¾İ°ü%
+        %å‘ç¼“å­˜ä¸­æ·»åŠ æ•°æ®åŒ…%
         function addPacketToCache(obj,packet)
             [~,cachedPacketListSize]=size(obj.cachedPacketList);
             if(cachedPacketListSize>=obj.maxSize)
-                obj.cachedPacketList(2)=[];%°ÑµÚ¶şÁĞÇå¿Õ,ÒòÎªµÚÒ»¸öÊÇ·Å½øÈ¥³õÊ¼»¯Êı×éµÄ£¬²»ÄÜÇå¿Õ%
+                %æŠŠç¬¬(2,middle+1)åˆ—æ¸…ç©º,å› ä¸ºç¬¬ä¸€ä¸ªæ˜¯æ”¾è¿›å»åˆå§‹åŒ–æ•°ç»„çš„ï¼Œä¸èƒ½æ¸…ç©º%
+                %ä¸€æ¬¡æ¸…é™¤ä¸€åŠç¼“å­˜ï¼Œå› ä¸ºæ¯æ¬¡éƒ½åªæ¸…é™¤ä¸€ä¸ªçš„è¯å¼€é”€å¤ªå¤§äº†%
+                obj.cachedPacketList(2:((obj.maxSize/2)+1))=[];
+                cachedPacketListSize=cachedPacketListSize-(obj.maxSize/2);
             end
             global SYSTEM_CLOCK;
             obj.cachedPacketList(cachedPacketListSize+1)=CachedPacket(packet.packetId,SYSTEM_CLOCK);
